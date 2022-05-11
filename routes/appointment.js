@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const { PrismaClient } = require('@prisma/client');
-const { slots, users, appointments } = new PrismaClient();
+const { slots, users, appointments, doctors } = new PrismaClient();
+const fs = require("fs")
 
 router.post('/appointment', async (req, res) => {
 
@@ -13,27 +14,27 @@ router.post('/appointment', async (req, res) => {
         }
     });
     console.log(slot)
-    if(slot === null){
+    if (slot === null) {
         return res.status(404).json({
-            msg:"slot not found"
+            msg: "slot not found"
         })
     }
 
     if (!(slot.appointment_id === null)) {
         return res.status(400).json({
             msg: "Appointment unavailable"
-        })  
+        })
     }
 
     let isUser = await users.findUnique({
         where: {
-            id:user_id
+            id: user_id
         }
     })
 
-    if(!isUser){
+    if (!isUser) {
         return res.status(400).json({
-            msg:"User unavailable"
+            msg: "User unavailable"
         })
     }
 
@@ -47,18 +48,17 @@ router.post('/appointment', async (req, res) => {
 
     const updateUser = await slots.update({
         where: {
-          id: slot.id
+            id: slot.id
         },
         data: {
-          appointment_id: newAppointment.id
+            appointment_id: newAppointment.id
         },
-      })
+    })
 
     res.json(newAppointment)
 
 
 });
-
 
 
 module.exports = router
